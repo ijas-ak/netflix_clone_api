@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:my_api_project/provider/home_provider.dart';
 import 'package:my_api_project/view/details_screen.dart';
 import 'package:provider/provider.dart';
@@ -9,11 +10,21 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final searchController = TextEditingController();
+    Provider.of<HomeProvider>(context, listen: false).getUpcomingMovies();
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Consumer2<SearchProvider, HomeProvider>(
           builder: (context, searchprovider, homeprovider, child) {
+            final upcomingMovies =
+                searchController.text.isEmpty
+                    ? homeprovider.upcoming
+                    : homeprovider.upcomingFiltered;
+            final movies =
+                searchController.text.isEmpty
+                    ? homeprovider.trending
+                    : homeprovider.filteredList;
             return ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -29,6 +40,10 @@ class SearchScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            homeprovider.searchMovie(searchController.text);
+                          },
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: "Search...",
@@ -82,34 +97,63 @@ class SearchScreen extends StatelessWidget {
                       childAspectRatio: 0.7,
                     ),
                     physics: BouncingScrollPhysics(),
+                    itemCount: movies.length,
 
-                    itemCount: homeprovider.trending.length,
                     itemBuilder: (context, index) {
+                      final trendingMovieImage =
+                          "https://image.tmdb.org/t/p/w500${movies[index].image}";
+                      final trendingMovie = movies[index];
+
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap:
-                              () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) { return MovieDetails(
-                                        description:homeprovider.trending[index].description,
-                                        title:homeprovider.trending[index].title,
-                                        releasedate:homeprovider.trending[index].releasedate,
-                                        image:homeprovider.trending[index].image,
-                                        rating: homeprovider.trending[index].rating,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap:
+                                  () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return MovieDetails(
+                                          description:
+                                              trendingMovie.description,
 
-                                        
-
-                                      );}
+                                          title: trendingMovie.title,
+                                          releasedate:
+                                              trendingMovie.releasedate,
+                                          image: trendingMovieImage,
+                                          rating:
+                                              trendingMovie.rating.toString(),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  trendingMovieImage,
+                                  width: 120,
+                                  height: 150,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          Container(color: Colors.grey[800]),
                                 ),
                               ),
-                          child: Image.network(
-                            "https://image.tmdb.org/t/p/w500${homeprovider.trending[index].image}",
-                            width: 120,
-                            fit: BoxFit.cover,
-                          ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              homeprovider.trending[index].title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                              maxLines: 1, // ✅ prevent overflow
+                              overflow: TextOverflow.ellipsis, // ✅ add "..."
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -149,8 +193,11 @@ class SearchScreen extends StatelessWidget {
                     ),
                     physics: BouncingScrollPhysics(),
 
-                    itemCount: homeprovider.upcoming.length,
+                    itemCount: upcomingMovies.length,
                     itemBuilder: (context, index) {
+                      final upcomingMovieImage =
+                          "https://image.tmdb.org/t/p/w500${upcomingMovies[index].image}";
+                      final upcomingMovie = upcomingMovies[index];
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
@@ -160,27 +207,23 @@ class SearchScreen extends StatelessWidget {
                                 MaterialPageRoute(
                                   builder: (context) {
                                     return MovieDetails(
-                                      description:
-                                          homeprovider
-                                              .upcoming[index]
-                                              .description,
-                                      title: homeprovider.upcoming[index].title,
-                                      image: homeprovider.upcoming[index].image,
-                                      rating:
-                                          homeprovider.upcoming[index].rating,
-                                      releasedate:
-                                          homeprovider
-                                              .upcoming[index]
-                                              .releasedate,
+                                      description: upcomingMovie.description,
+                                      title: upcomingMovie.title,
+                                      image: upcomingMovieImage,
+                                      rating: upcomingMovie.rating.toString(),
+                                      releasedate: upcomingMovie.releasedate,
                                     );
                                   },
                                 ),
                               ),
-                          child: Image.network(
-                            "https://image.tmdb.org/t/p/w500${homeprovider.upcoming[index].image}",
-                            width: 120,
-                            fit: BoxFit.cover,
-                          ),
+                          child:
+                              upcomingMovieImage.isEmpty
+                                  ? CircularProgressIndicator()
+                                  : Image.network(
+                                    upcomingMovieImage,
+                                    width: 120,
+                                    fit: BoxFit.cover,
+                                  ),
                         ),
                       );
                     },

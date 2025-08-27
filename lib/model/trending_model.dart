@@ -3,7 +3,7 @@ class TrendingModel {
   String image;
   String releasedate;
   String description;
-  String rating;
+  double rating;
   TrendingModel({
     required this.image,
     required this.description,
@@ -13,11 +13,11 @@ class TrendingModel {
   });
   factory TrendingModel.fromJson(Map<String, dynamic> json) {
     return TrendingModel(
-      image: json["poster_path"],
+      image: json["poster_path"] ?? "",
       description: json["overview"],
-      rating: json["vote_average"],
-      releasedate: json['release_date'],
-      title: json["title"],
+      rating: (json["vote_average"] as num?)?.toDouble() ?? 0.0,
+      releasedate: json["release_date"] ?? "",
+      title: json["title"] ?? "",
     );
   }
 }

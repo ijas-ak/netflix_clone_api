@@ -3,7 +3,7 @@ class UpcomingMovieModel {
   String image;
   String releasedate;
   String description;
-  String rating;
+  double rating;
 
   UpcomingMovieModel({
     required this.title,
@@ -15,11 +15,11 @@ class UpcomingMovieModel {
 
   factory UpcomingMovieModel.fromJson(Map<String, dynamic> json) {
     return UpcomingMovieModel(
-      title: json["title"],
-      image: json["poster_path"],
-      releasedate: json['release_date'],
-      description: json["overview"],
-      rating: json["vote_average"],
+      title: json["title"] ?? "",
+      image: json["poster_path"] ?? "",
+      releasedate: json['release_date'] ?? "",
+      description: json["overview"] ?? "",
+      rating: json["vote_average"] ?? "",
     );
   }
 }

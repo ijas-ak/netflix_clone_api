@@ -14,30 +14,33 @@ class ApiService {
       log("success");
       final responce = await dio.get(ApiConstants().trendingurl);
       List<dynamic> data = responce.data["results"];
-      
+
       return data.map((e) => TrendingModel.fromJson(e)).toList();
     } on DioException catch (e) {
       print(e);
     }
   }
 
-  Future getUpcomingMovies()async{
-    final responce = await dio.get(ApiConstants().upcomingurl);
-    List<dynamic> data =responce.data["results"];
-    return data.map((e) => UpcomingMovieModel.fromJson(e),).toList();
+  Future getUpcomingMovies() async {
+    try {
+      log("Success");
+      final responce = await dio.get(ApiConstants().upcomingurl);
+      List<dynamic> data = responce.data["results"];
+      return data.map((e) => UpcomingMovieModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      print("Error $e");
+    }
   }
 
-    Future getPopularTvShows() async {
+  Future getPopularTvShows() async {
     try {
       log("success");
       final responce = await dio.get(ApiConstants().populartvshowsurl);
       List<dynamic> data = responce.data["results"];
-      
+
       return data.map((e) => PopularShowModel.fromJson(e)).toList();
     } on DioException catch (e) {
       print(e);
     }
   }
-
-  
 }
